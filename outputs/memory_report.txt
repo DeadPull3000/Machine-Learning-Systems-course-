@@ -1,0 +1,5 @@
+Trainable parameters: 998,530
+Weights: 3994120 bytes
+Gradients: 3994120 bytes
+Adam moments: 7988240 bytes
+Persistent total: 15976480 bytes
