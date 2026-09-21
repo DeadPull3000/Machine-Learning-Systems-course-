@@ -74,60 +74,121 @@ def print_ascii_summary(history):
     print("=" * 65)
 
 
-def generate_plot(history):
+def generate_plots(history):
     epochs = [h["epoch"] for h in history]
     train_loss = [h["train_loss"] for h in history]
     val_loss = [h["val_loss"] for h in history]
     train_acc = [h["train_accuracy"] for h in history]
     val_acc = [h["val_accuracy"] for h in history]
 
-    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+    # Style settings
+    plt.rcParams.update({"font.family": "sans-serif", "font.size": 10})
 
-    # Subplot 1: Loss Curve
-    axes[0].plot(epochs, train_loss, marker="o", linewidth=2, label="Train Loss", color="#1f77b4")
-    axes[0].plot(epochs, val_loss, marker="s", linewidth=2, linestyle="--", label="Validation Loss", color="#ff7f0e")
-    axes[0].set_title("Cross-Entropy Loss vs. Epochs", fontsize=13, fontweight="bold")
-    axes[0].set_xlabel("Epoch", fontsize=11)
-    axes[0].set_ylabel("Loss", fontsize=11)
+    # ============================================================
+    # GRAPH 1: Epoch vs Training Loss
+    # ============================================================
+    fig1, ax1 = plt.subplots(figsize=(7, 5), dpi=300)
+    ax1.plot(epochs, train_loss, marker="o", markersize=7, linewidth=2.2, color="#1f77b4", label="Training Loss")
+    for x, y in zip(epochs, train_loss):
+        ax1.annotate(f"{y:.4f}", (x, y), textcoords="offset points", xytext=(0, 8), ha="center", fontsize=9, fontweight="bold", color="#1f77b4")
+    ax1.set_title("Graph 1: Epoch vs. Training Loss", fontsize=13, fontweight="bold", pad=12)
+    ax1.set_xlabel("Epoch", fontsize=11, labelpad=8)
+    ax1.set_ylabel("Training Cross-Entropy Loss", fontsize=11, labelpad=8)
+    ax1.set_xticks(epochs)
+    ax1.set_ylim(0.0, max(train_loss) * 1.18)
+    ax1.grid(True, linestyle="--", alpha=0.5)
+    ax1.legend(loc="upper right", frameon=True)
+    fig1.tight_layout()
+    g1_path = OUTPUT_DIR / "graph1_training_loss.png"
+    fig1.savefig(g1_path)
+    plt.close(fig1)
+    print(f"Graph 1 saved: {g1_path.resolve()}")
+
+    # ============================================================
+    # GRAPH 2: Epoch vs Validation Loss
+    # ============================================================
+    fig2, ax2 = plt.subplots(figsize=(7, 5), dpi=300)
+    ax2.plot(epochs, val_loss, marker="s", markersize=7, linewidth=2.2, color="#ff7f0e", linestyle="--", label="Validation Loss")
+    for x, y in zip(epochs, val_loss):
+        ax2.annotate(f"{y:.4f}", (x, y), textcoords="offset points", xytext=(0, 8), ha="center", fontsize=9, fontweight="bold", color="#ff7f0e")
+    ax2.set_title("Graph 2: Epoch vs. Validation Loss", fontsize=13, fontweight="bold", pad=12)
+    ax2.set_xlabel("Epoch", fontsize=11, labelpad=8)
+    ax2.set_ylabel("Validation Cross-Entropy Loss", fontsize=11, labelpad=8)
+    ax2.set_xticks(epochs)
+    ax2.set_ylim(min(val_loss) * 0.8, max(val_loss) * 1.18)
+    ax2.grid(True, linestyle="--", alpha=0.5)
+    ax2.legend(loc="upper right", frameon=True)
+    fig2.tight_layout()
+    g2_path = OUTPUT_DIR / "graph2_validation_loss.png"
+    fig2.savefig(g2_path)
+    plt.close(fig2)
+    print(f"Graph 2 saved: {g2_path.resolve()}")
+
+    # ============================================================
+    # GRAPH 3: Epoch vs Training / Validation Accuracy
+    # ============================================================
+    fig3, ax3 = plt.subplots(figsize=(7, 5), dpi=300)
+    ax3.plot(epochs, train_acc, marker="o", markersize=7, linewidth=2.2, color="#2ca02c", label="Training Accuracy (%)")
+    ax3.plot(epochs, val_acc, marker="^", markersize=7, linewidth=2.2, color="#d62728", linestyle="-.", label="Validation Accuracy (%)")
+    for x, y in zip(epochs, train_acc):
+        ax3.annotate(f"{y:.2f}%", (x, y), textcoords="offset points", xytext=(0, 7), ha="center", fontsize=8.5, fontweight="bold", color="#2ca02c")
+    for x, y in zip(epochs, val_acc):
+        ax3.annotate(f"{y:.2f}%", (x, y), textcoords="offset points", xytext=(0, -14), ha="center", fontsize=8.5, fontweight="bold", color="#d62728")
+    ax3.set_title("Graph 3: Epoch vs. Training & Validation Accuracy", fontsize=13, fontweight="bold", pad=12)
+    ax3.set_xlabel("Epoch", fontsize=11, labelpad=8)
+    ax3.set_ylabel("Classification Accuracy (%)", fontsize=11, labelpad=8)
+    ax3.set_xticks(epochs)
+    ax3.set_ylim(92.0, 100.5)
+    ax3.grid(True, linestyle="--", alpha=0.5)
+    ax3.legend(loc="lower right", frameon=True)
+    fig3.tight_layout()
+    g3_path = OUTPUT_DIR / "graph3_accuracy.png"
+    fig3.savefig(g3_path)
+    plt.close(fig3)
+    print(f"Graph 3 saved: {g3_path.resolve()}")
+
+    # ============================================================
+    # COMBINED 3-PANEL OVERVIEW FIGURE
+    # ============================================================
+    fig_all, axes = plt.subplots(1, 3, figsize=(18, 5.2), dpi=300)
+
+    # Panel 1: Training Loss
+    axes[0].plot(epochs, train_loss, marker="o", linewidth=2.2, color="#1f77b4", label="Train Loss")
+    axes[0].set_title("Graph 1: Epoch vs. Training Loss", fontsize=12, fontweight="bold")
+    axes[0].set_xlabel("Epoch")
+    axes[0].set_ylabel("Training Loss")
     axes[0].set_xticks(epochs)
-    axes[0].grid(True, linestyle=":", alpha=0.6)
-    axes[0].legend(fontsize=10)
+    axes[0].grid(True, linestyle="--", alpha=0.5)
+    axes[0].legend()
 
-    # Subplot 2: Accuracy Curve
-    axes[1].plot(epochs, train_acc, marker="o", linewidth=2, label="Train Accuracy", color="#2ca02c")
-    axes[1].plot(epochs, val_acc, marker="s", linewidth=2, linestyle="--", label="Validation Accuracy", color="#d62728")
-    axes[1].set_title("Classification Accuracy (%) vs. Epochs", fontsize=13, fontweight="bold")
-    axes[1].set_xlabel("Epoch", fontsize=11)
-    axes[1].set_ylabel("Accuracy (%)", fontsize=11)
+    # Panel 2: Validation Loss
+    axes[1].plot(epochs, val_loss, marker="s", linewidth=2.2, color="#ff7f0e", linestyle="--", label="Val Loss")
+    axes[1].set_title("Graph 2: Epoch vs. Validation Loss", fontsize=12, fontweight="bold")
+    axes[1].set_xlabel("Epoch")
+    axes[1].set_ylabel("Validation Loss")
     axes[1].set_xticks(epochs)
-    axes[1].grid(True, linestyle=":", alpha=0.6)
-    axes[1].legend(fontsize=10)
+    axes[1].grid(True, linestyle="--", alpha=0.5)
+    axes[1].legend()
 
-    # Subplot 3: Memory Footprint Breakdown
-    memory_categories = ["Weights", "Gradients", "Adam (m+v)", "Total State"]
-    memory_values_mb = [3.9941, 3.9941, 7.9882, 15.9765]
-    bar_colors = ["#4a90e2", "#50e3c2", "#f5a623", "#9013fe"]
+    # Panel 3: Training & Validation Accuracy
+    axes[2].plot(epochs, train_acc, marker="o", linewidth=2.2, color="#2ca02c", label="Train Acc (%)")
+    axes[2].plot(epochs, val_acc, marker="^", linewidth=2.2, color="#d62728", linestyle="-.", label="Val Acc (%)")
+    axes[2].set_title("Graph 3: Epoch vs. Accuracy", fontsize=12, fontweight="bold")
+    axes[2].set_xlabel("Epoch")
+    axes[2].set_ylabel("Accuracy (%)")
+    axes[2].set_xticks(epochs)
+    axes[2].grid(True, linestyle="--", alpha=0.5)
+    axes[2].legend(loc="lower right")
 
-    bars = axes[2].bar(memory_categories, memory_values_mb, color=bar_colors, edgecolor="black", linewidth=0.8)
-    axes[2].set_title("Persistent Memory Footprint (FP32)", fontsize=13, fontweight="bold")
-    axes[2].set_ylabel("Allocated Memory (MB)", fontsize=11)
-    axes[2].grid(axis="y", linestyle=":", alpha=0.6)
-
-    for bar in bars:
-        height = bar.get_height()
-        axes[2].annotate(f"{height:.2f} MB",
-                         xy=(bar.get_x() + bar.get_width() / 2, height),
-                         xytext=(0, 4),
-                         textcoords="offset points",
-                         ha="center", va="bottom", fontsize=10, fontweight="bold")
-
-    plt.tight_layout()
-    plt.savefig(PLOT_FILE, dpi=300)
-    plt.close()
-    print(f"\nPlot saved successfully to: {PLOT_FILE.resolve()}")
+    fig_all.tight_layout()
+    combined_path = OUTPUT_DIR / "combined_experiment_graphs.png"
+    fig_all.savefig(combined_path)
+    plt.close(fig_all)
+    print(f"Combined figure saved: {combined_path.resolve()}")
 
 
 if __name__ == "__main__":
     hist = load_history()
     print_ascii_summary(hist)
-    generate_plot(hist)
+    generate_plots(hist)
+
