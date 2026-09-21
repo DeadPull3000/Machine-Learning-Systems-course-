@@ -33,11 +33,11 @@ flowchart TD
    - Rescale pixel intensity from integer range $[0, 255]$ to floating-point range $[0.0, 1.0]$.
    - Optionally apply standard MNIST normalization: $\mu = 0.1307$, $\sigma = 0.3081$.
 3. **Splits**:
-   - Training Set: 50,000 images.
-   - Validation Set: 10,000 images (held out from the original 60,000 train set for hyperparameter tuning / early stopping).
-   - Test Set: 10,000 images (evaluated once at the end).
+   - Training Set: 55,000 images (or 50,000 images).
+   - Validation Set: 5,000 images (or 10,000 images held out from the original 60,000 train set for evaluation/checkpointing).
+   - Test Set: 10,000 images (evaluated once after training completion).
 4. **Data Loading**:
-   - Mini-batching (recommended batch size: $64$ or $128$).
+   - Mini-batching (default batch size: $128$, `num_workers=0`, pinned memory on CUDA).
    - Training split must be shuffled each epoch; validation and test splits must remain fixed and un-shuffled.
 
 ---
