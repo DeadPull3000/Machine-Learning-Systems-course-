@@ -127,12 +127,33 @@ if __name__ == "__main__":
     train_loader, val_loader, test_loader = get_data_loaders(batch_size=64)
     images, labels = next(iter(train_loader))
 
-    print("\nBatch Inspection:")
-    print(f"Batch image tensor shape: {tuple(images.shape)}  (Batch Size, Channels, Height, Width)")
-    print(f"Batch label tensor shape: {tuple(labels.shape)}")
-    print(f"Pixel min value:          {images.min().item():.4f}")
-    print(f"Pixel max value:          {images.max().item():.4f}")
-    print(f"Classes present in batch: {sorted(labels.unique().tolist())}")
-    print(f"Target classes count:     10 (digits 0-9)")
-    print(f"Flattened input feature size: {images.shape[1] * images.shape[2] * images.shape[3]} (28 x 28)")
+    # Step 3: Normalization Analysis
+    print("\n" + "=" * 60)
+    print("Step 3: Normalization Analysis (Raw vs ToTensor vs Normalized)")
     print("=" * 60)
+    # Fetch raw sample without transform
+    raw_mnist = datasets.MNIST(root="./data", train=True, download=False)
+    raw_img, raw_label = raw_mnist[0]
+    import numpy as np
+    raw_arr = np.array(raw_img)
+
+    # ToTensor only
+    tensor_only_tf = transforms.ToTensor()
+    tensor_img = tensor_only_tf(raw_img)
+
+    # Full Normalized
+    norm_tf = get_transforms()
+    normalized_img = norm_tf(raw_img)
+
+    print(f"1. Raw Image (PIL/uint8):")
+    print(f"   Shape: {raw_arr.shape} | Range: [{raw_arr.min()}, {raw_arr.max()}] | dtype: {raw_arr.dtype}")
+    print(f"2. After transforms.ToTensor() (Float32 in [0, 1]):")
+    print(f"   Shape: {tuple(tensor_img.shape)} | Range: [{tensor_img.min():.4f}, {tensor_img.max():.4f}] | Mean: {tensor_img.mean():.4f} | Std: {tensor_img.std():.4f}")
+    print(f"3. After transforms.Normalize((0.1307,), (0.3081,)):")
+    print(f"   Shape: {tuple(normalized_img.shape)} | Range: [{normalized_img.min():.4f}, {normalized_img.max():.4f}] | Mean: {normalized_img.mean():.4f} | Std: {normalized_img.std():.4f}")
+    print("\nBatch Level Normalized Statistics:")
+    print(f"   Batch Mean: {images.mean().item():.4f} (~0.0) | Batch Std: {images.std().item():.4f} (~1.0)")
+    print("   Why this matters: Zero-centering and unit variance keep activation distributions")
+    print("   well-scaled, preventing gradient saturation and stabilizing Adam's second-moment estimates.")
+    print("=" * 60)
+
