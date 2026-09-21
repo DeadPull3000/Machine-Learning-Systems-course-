@@ -17,7 +17,7 @@ from torchvision import datasets, transforms
 SEED = 42
 
 BATCH_SIZE = 128
-EPOCHS = 5
+EPOCHS = 1
 LEARNING_RATE = 1e-3
 
 DATA_DIR = Path("./data")
