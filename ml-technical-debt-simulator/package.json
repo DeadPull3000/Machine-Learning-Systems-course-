@@ -1,0 +1,21 @@
+{
+  "name": "ml-technical-debt-simulation",
+  "version": "1.0.0",
+  "description": "Interactive browser simulation for Sculley et al., 'Hidden Technical Debt in Machine Learning Systems' (NeurIPS 2015)",
+  "type": "module",
+  "scripts": {
+    "start": "python -m http.server 8080",
+    "serve": "npx serve .",
+    "test": "node test/scenario-test.js"
+  },
+  "keywords": [
+    "machine-learning",
+    "technical-debt",
+    "ml-systems",
+    "neurips",
+    "systems-architecture",
+    "visualization"
+  ],
+  "author": "Google DeepMind pair programming assistant",
+  "license": "MIT"
+}
