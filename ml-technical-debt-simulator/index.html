@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ML Technical Debt Simulator — Sculley et al. (NeurIPS 2015)</title>
+  <meta name="description" content="Interactive visual systems simulation of Hidden Technical Debt in Machine Learning Systems by Sculley et al. (Google, NeurIPS 2015).">
+  
+  <!-- Typography: IBM Plex Sans & IBM Plex Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app-container" class="app-container">
+    
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-title-block">
+        <h1>ML Technical Debt Simulator</h1>
+        <div class="subtitle">
+          Sculley et al., <em>“Hidden Technical Debt in Machine Learning Systems”</em> &mdash; Google / NeurIPS 2015
+          <span class="paper-badge">CACE · Cascades · Feedback · Jungles</span>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <button id="btn-next-step" class="btn-tech btn-primary" title="Advance presentation to next logical step [Space or Right Arrow]">Next Step (Space / →)</button>
+        <button id="btn-presentation-toggle" class="btn-tech" title="Toggle presentation mode for large screens and projectors [P]">Presentation Mode (P)</button>
+        <button id="btn-reset" class="btn-tech" title="Reset system back to Stage 0 [R]">Reset (R)</button>
+      </div>
+    </header>
+
+    <!-- System Statistics & Simulated Debt Meter -->
+    <section class="stats-banner" aria-label="System Metrics">
+      <div class="stat-item healthy">
+        <span class="stat-label">Model Accuracy</span>
+        <div id="stat-accuracy" class="stat-value">92.4%</div>
+        <span class="stat-hint">Illustrative simulation values</span>
+      </div>
+
+      <div class="stat-item debt-item">
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span class="stat-label">Simulated Debt</span>
+          <span id="debt-meter-label" class="stat-label" style="color: var(--state-healthy);">LOW</span>
+        </div>
+        <div id="stat-debt" class="stat-value">0</div>
+        <div class="debt-meter-container">
+          <div class="debt-meter-bar">
+            <div id="debt-meter-fill" class="debt-meter-fill"></div>
+          </div>
+          <div class="debt-meter-scale">
+            <span>LOW</span>
+            <span>MODERATE</span>
+            <span>HIGH</span>
+            <span>CRITICAL</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-item nodes-item">
+        <span class="stat-label">System Nodes</span>
+        <div id="stat-nodes" class="stat-value">3</div>
+        <span class="stat-hint">Active architectural components</span>
+      </div>
+    </section>
+
+    <!-- Engineering Controls Toolbar -->
+    <nav class="controls-toolbar" aria-label="Simulation Controls">
+      <div class="control-group">
+        <span class="control-group-label">Architecture:</span>
+        <button id="btn-add-feature" class="btn-tech" title="Add input feature (CACE demonstration)">+ Add Feature (0/4)</button>
+        <button id="btn-add-correction" class="btn-tech" title="Add secondary correction model (Correction Cascade)">+ Correction Model</button>
+        <button id="btn-add-consumer" class="btn-tech" title="Add undeclared downstream consumers">+ Undeclared Consumer</button>
+        <button id="btn-add-feedback" class="btn-tech" title="Add cyclic feedback loop back to data">+ Feedback Loop</button>
+        <button id="btn-add-pipeline" class="btn-tech" title="Add upstream pipeline ETL stages (Pipeline Jungle)">+ Pipeline Stage (0/3)</button>
+      </div>
+
+      <div class="control-group">
+        <span class="control-group-label">Analysis:</span>
+        <button id="btn-change-feature-a" class="btn-tech btn-highlight" title="Demonstrate CACE downstream ripple effect [C]">Change Feature A (C)</button>
+        <button id="btn-run-analysis" class="btn-tech btn-critical" title="Inspect system for ML technical debt anti-patterns [D]">Run Debt Analysis (D)</button>
+      </div>
+    </nav>
+
+    <!-- Main Workspace / SVG Diagram -->
+    <main class="workspace-wrapper">
+      <div class="workspace-body">
+        <div class="canvas-container">
+          <svg id="architecture-canvas" role="img" aria-label="ML Architecture Dependency Graph"></svg>
+        </div>
+
+        <!-- Side-by-Side Change Impact Panel (Drawer) -->
+        <aside id="impact-panel" class="impact-panel hidden" aria-live="polite">
+          <div class="impact-panel-header">
+            <span class="impact-panel-title">Change Impact Analysis</span>
+            <button id="btn-close-impact" class="btn-close-panel" title="Close impact view (Esc)">&times;</button>
+          </div>
+          <div class="impact-panel-body">
+            <div class="impact-summary-line">
+              <strong>Feature A changed.</strong><br>
+              Potentially affected components: <strong id="impact-count">0</strong>
+            </div>
+            <ul id="impact-list" class="impact-list">
+              <!-- Dynamically populated from Graph BFS -->
+            </ul>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Narrator Editorial Card -->
+      <footer class="narrator-card">
+        <span id="narrator-badge" class="narrator-badge">Stage 0</span>
+        <div class="narrator-body">
+          <div id="narrator-title" class="narrator-title">Clean System — Minimal Baseline</div>
+          <div id="narrator-quote" class="narrator-quote">“One model, one input pipeline, one prediction interface.”</div>
+          <div id="narrator-detail" class="narrator-detail">Low coupling, clear system boundaries, high visibility.</div>
+        </div>
+      </footer>
+
+      <!-- Easter Egg Status Line -->
+      <div id="status-easter-egg" class="status-easter-egg hidden">
+        <span>MODEL STATUS: <strong class="model-healthy">✓ HEALTHY</strong></span>
+        <span>|</span>
+        <span>SYSTEM STATUS: <strong class="system-danger">⚠ PLEASE DO NOT TOUCH ANYTHING</strong></span>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Debt Analysis Report Modal -->
+  <div id="report-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="modal-title">ML Technical Debt Audit Report</h2>
+        <button id="btn-close-report" class="btn-close-modal" title="Close report (Esc)">&times;</button>
+      </div>
+      <div id="report-content" class="modal-body">
+        <!-- Dynamically generated report -->
+      </div>
+      <div class="modal-footer">
+        <button id="btn-modal-dismiss" class="btn-tech" onclick="document.getElementById('report-modal').classList.add('hidden')">Close (Esc)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
